@@ -1,0 +1,86 @@
+env/*
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# SQLite3 database (if using it locally)
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+
+# Django secret key or settings (if split out)
+secrets.json
+
+# Media/uploads (optional – if stored locally)
+media/
+
+# Static files (if using collectstatic for production)
+staticfiles/
+
+# VSCode and other IDEs/editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PyCharm
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# MacOS
+.DS_Store
+
+# Coverage and testing
+htmlcov/
+.coverage
+coverage.xml
+.tox/
+.nox/
+.pytest_cache/
+nosetests.xml
+test*.xml
+
+# Build/dist
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Node/npm (if frontend assets used)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Docker
+*.pid
+*.bak
+*.backup
+
+# Gunicorn/PID files
+*.pid
+
+# MyPy
+.mypy_cache/
+
+# Pycharm
+__pycache__/
+.idea/
+
+# Optional: Celery beat scheduler
+celerybeat-schedule
+
+# Optional: local settings override
+local_settings.py
