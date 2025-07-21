@@ -31,8 +31,9 @@ class Order(models.Model):
     from django.db import models
 
     class StatusChoices(models.TextChoices):
-        PENDING = 'pending', 'Pending'
-        SHIPPED = 'shipped', 'Shipped'
+        CONFIRMED = 'confirmed', 'Confirmed'
+        PENDING = 'pending',   'Pending'
+        SHIPPED = 'shipped',   'Shipped'
         DELIVERED = 'delivered', 'Delivered'
         CANCELLED = 'cancelled', 'Cancelled'
 
