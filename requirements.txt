@@ -7,3 +7,5 @@ gprof2dot==2025.4.14
 pillow==10.4.0
 sqlparse==0.5.1
 tzdata==2024.2
+drf-yasg==1.20.0
+Faker==18.11.1
