@@ -1,24 +1,24 @@
 from django.db.models import Max
 from api.serializers import ProductSerializer, OrderSerializer, ProductInfoSerializer
-from api.models import Product, Order, OrderItem
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework import generics
-from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
+
+from api.models import Product, Order
 
 
 # All of this Generic API Views are Read-Only views.
 class ProductListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all()  # pylint: disable=no-member
     serializer_class = ProductSerializer
 
     def get_permissions(self):
         self.permission_classes = [AllowAny]
-        if self.request.method == "POST":
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
             self.permission_classes = [IsAdminUser]
         return super().get_permissions()
+
     # @api_view(["GET"])
     # def product_list(request):
     #     products = Product.objects.all()
@@ -26,10 +26,18 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     #     return Response(serializer.data)
 
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
-    # queryset = Product.objects.all()
-    queryset = Product.objects.filter()
+class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    This view is used to retrieve, update, and delete a product.
+    """
+    queryset = Product.objects.all()  # pylint: disable=no-member
     serializer_class = ProductSerializer
+
+    def get_permissions(self):
+        self.permission_classes = [AllowAny]
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
 
     # @api_view(['GET'])
     # def product_detail(request, pk):
@@ -39,7 +47,8 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 
 
 class OrderListAPIView(generics.ListAPIView):
-    queryset = Order.objects.prefetch_related("items__product")
+    queryset = Order.objects.prefetch_related(  # pylint: disable=no-member
+        "items__product")  # pylint: disable=no-member
     serializer_class = OrderSerializer
     # @api_view(["GET"])
     # def order_list(request):
@@ -49,7 +58,8 @@ class OrderListAPIView(generics.ListAPIView):
 
 
 class UserOrdersAPIView(generics.ListAPIView):
-    queryset = Order.objects.prefetch_related("items__product")
+    queryset = Order.objects.prefetch_related(  # pylint: disable=no-member
+        "items__product")  # pylint: disable=no-member
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
@@ -59,8 +69,15 @@ class UserOrdersAPIView(generics.ListAPIView):
 
 
 class ProductInfoAPIView(APIView):
+    """
+    This view is used to get the product info.
+    """
+
     def get(self, request):
-        products = Product.objects.all()
+        """
+        This view is used to get the product info.
+        """
+        products = Product.objects.all()  # pylint: disable=no-member
         serializer = ProductInfoSerializer({
             "products": products,
             "count": len(products),

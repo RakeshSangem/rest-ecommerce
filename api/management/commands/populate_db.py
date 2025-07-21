@@ -1,40 +1,60 @@
 import random
 from decimal import Decimal
+from faker import Faker
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from django.utils import lorem_ipsum
 from api.models import User, Product, Order, OrderItem
 
+
 class Command(BaseCommand):
-    help = 'Creates application data'
+    help = 'Creates more realistic application data'
 
     def handle(self, *args, **kwargs):
         # get or create superuser
         user = User.objects.filter(username='admin').first()
         if not user:
-            user = User.objects.create_superuser(username='admin', password='test')
+            user = User.objects.create_superuser(
+                username='admin', password='test')
 
-        # create products - name, desc, price, stock, image
-        products = [
-            Product(name="A Scanner Darkly", description=lorem_ipsum.paragraph(), price=Decimal('12.99'), stock=4),
-            Product(name="Coffee Machine", description=lorem_ipsum.paragraph(), price=Decimal('70.99'), stock=6),
-            Product(name="Velvet Underground & Nico", description=lorem_ipsum.paragraph(), price=Decimal('15.99'), stock=11),
-            Product(name="Enter the Wu-Tang (36 Chambers)", description=lorem_ipsum.paragraph(), price=Decimal('17.99'), stock=2),
-            Product(name="Digital Camera", description=lorem_ipsum.paragraph(), price=Decimal('350.99'), stock=4),
-            Product(name="Watch", description=lorem_ipsum.paragraph(), price=Decimal('500.05'), stock=0),
-        ]
+        # Clean up existing data to avoid duplicates on re-run
+        OrderItem.objects.all().delete()
+        Order.objects.all().delete()
+        Product.objects.all().delete()
 
-        # create products & re-fetch from DB
+        self.stdout.write("Cleared existing data...")
+
+        fake = Faker()
+
+        # create products
+        products = []
+        self.stdout.write("Creating products...")
+        for _ in range(50):  # Create 50 products
+            products.append(
+                Product(
+                    name=fake.company() + " " + fake.bs(),
+                    description=fake.text(),
+                    price=Decimal(random.randrange(100, 10000)) / 100,
+                    stock=random.randint(0, 100)
+                )
+            )
+
         Product.objects.bulk_create(products)
         products = Product.objects.all()
-
+        self.stdout.write(f"Created {len(products)} products.")
 
         # create some dummy orders tied to the superuser
-        for _ in range(3):
-            # create an Order with 2 order items
+        self.stdout.write("Creating orders...")
+        for _ in range(15):
+            # create an Order with a random number of items (1 to 5)
             order = Order.objects.create(user=user)
-            for product in random.sample(list(products), 2):
+            num_items = random.randint(1, 5)
+            # Ensure we don't try to sample more products than exist
+            sample_size = min(num_items, len(products))
+            for product in random.sample(list(products), sample_size):
                 OrderItem.objects.create(
-                    order=order, product=product, quantity=random.randint(1,3)
+                    order=order, product=product, quantity=random.randint(1, 5)
                 )
+
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully populated the database with realistic data.'))
