@@ -1,9 +1,10 @@
 from django.db.models import Max
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, viewsets
+from rest_framework import filters, generics, viewsets, status
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import action
 
 from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
 from api.models import Order, Product
@@ -65,9 +66,24 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.prefetch_related(  # pylint: disable=no-member
         "items__product")  # pylint: disable=no-member
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     filterset_class = OrderFilter
     filter_backends = [DjangoFilterBackend]
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='user-orders',
+        # permission_classes=[IsAuthenticated]
+    )
+    def user_orders(self, request):
+        """
+        Get all orders for the current user.
+        """
+
+        orders = self.get_queryset().filter(user=request.user)
+        serializer = self.get_serializer(orders, many=True)
+        return Response(serializer.data)
 
     # @api_view(["GET"])
     # def order_list(request):
