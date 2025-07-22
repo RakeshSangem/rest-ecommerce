@@ -1,10 +1,10 @@
 from django.db.models import Max
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, viewsets, status
+from rest_framework import filters, generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import action
 
 from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
 from api.models import Order, Product
@@ -69,6 +69,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filterset_class = OrderFilter
     filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        """
+        Get the queryset for the current user.
+        If the user is not staff, only return orders for the current user.
+        """
+        qs = super().get_queryset()
+        if not self.request.user.is_staff:
+            qs = qs.filter(user=self.request.user)
+        return qs
 
     @action(
         detail=False,
