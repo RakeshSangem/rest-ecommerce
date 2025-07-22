@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,4 +141,28 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Ecommerce API for managing products and orders',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+}
+
+# JWT Settings
+SIMPLE_JWT = {
+    # Access token valid for 1 hour
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # Refresh token valid for 7 days
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,                   # Rotate refresh tokens
+    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist old refresh tokens
+    'UPDATE_LAST_LOGIN': True,                       # Update last login time
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
