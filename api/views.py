@@ -1,14 +1,14 @@
 from django.db.models import Max
-from api.serializers import ProductSerializer, OrderSerializer, ProductInfoSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, viewsets
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 
-from api.models import Product, Order
-from api.filters import ProductFilter, InStockFilterBackend
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
+from api.models import Order, Product
+from api.serializers import (OrderSerializer, ProductInfoSerializer,
+                             ProductSerializer)
 
 
 # All of this Generic API Views are Read-Only views.
@@ -58,10 +58,17 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     #     return Response(serializer.data)
 
 
-class OrderListAPIView(generics.ListAPIView):
+class OrderViewSet(viewsets.ModelViewSet):
+    """
+    This viewset is used to create, retrieve, update, and delete orders.
+    """
     queryset = Order.objects.prefetch_related(  # pylint: disable=no-member
         "items__product")  # pylint: disable=no-member
     serializer_class = OrderSerializer
+    permission_classes = [AllowAny]
+    filterset_class = OrderFilter
+    filter_backends = [DjangoFilterBackend]
+
     # @api_view(["GET"])
     # def order_list(request):
     #     orders = Order.objects.prefetch_related("items__product")
