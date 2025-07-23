@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 
 from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
 from api.models import Order, Product
-from api.serializers import (OrderSerializer, ProductInfoSerializer,
-                             ProductSerializer)
+from api.serializers import (OrderCreateSerializer, OrderSerializer,
+                             ProductInfoSerializer, ProductSerializer)
 
 
 # All of this Generic API Views are Read-Only views.
@@ -64,11 +64,23 @@ class OrderViewSet(viewsets.ModelViewSet):
     This viewset is used to create, retrieve, update, and delete orders.
     """
     queryset = Order.objects.prefetch_related(  # pylint: disable=no-member
-        "items__product")  # pylint: disable=no-member
+        "items__product")
+
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
     filterset_class = OrderFilter
     filter_backends = [DjangoFilterBackend]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_serializer_class(self):
+        # can also check for POST - self.request.method == 'POST'
+        if self.action == 'create' or self.action == 'update':
+            return OrderCreateSerializer
+        # elif self.action == 'update':
+        #     return OrderCreateSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         """
