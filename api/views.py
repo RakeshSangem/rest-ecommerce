@@ -7,9 +7,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
-from api.models import Order, Product
+from api.models import Order, Product, User
 from api.serializers import (OrderCreateSerializer, OrderSerializer,
-                             ProductInfoSerializer, ProductSerializer)
+                             ProductInfoSerializer, ProductSerializer,
+                             UserSerializer)
 
 
 # All of this Generic API Views are Read-Only views.
@@ -152,3 +153,9 @@ class ProductInfoAPIView(APIView):
         #     })
 
         #     return Response(serializer.data)
+
+
+class UserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = None
